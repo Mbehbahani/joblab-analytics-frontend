@@ -35,6 +35,7 @@ import {
   IconCheck,
   IconX,
   IconAlertTriangle,
+  IconUserOff,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
@@ -266,10 +267,17 @@ export function JobsTable({ data, loading, kanbanUserId }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [sortBy, setSortBy] = useState("job_relevance_score");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [applyStatus, setApplyStatus] = useState<Record<string, "idle" | "loading" | "success" | "error" | "duplicate">>({});
+  const [applyStatus, setApplyStatus] = useState<Record<string, "idle" | "loading" | "success" | "error" | "duplicate" | "not-connected">>({});
 
   const handleApplyToKanban = async (job: Job) => {
     const jobKey = job._id;
+
+    if (!kanbanUserId) {
+      setApplyStatus((prev) => ({ ...prev, [jobKey]: "not-connected" }));
+      setTimeout(() => setApplyStatus((prev) => ({ ...prev, [jobKey]: "idle" })), 5000);
+      return;
+    }
+
     setApplyStatus((prev) => ({ ...prev, [jobKey]: "loading" }));
     try {
       // 1. Duplicate check
@@ -586,6 +594,8 @@ export function JobsTable({ data, loading, kanbanUserId }: Props) {
                       ? "Failed to add"
                       : applyStatus[selectedJob._id] === "duplicate"
                       ? "Already exists in Kanban"
+                      : applyStatus[selectedJob._id] === "not-connected"
+                      ? "Sign in to job-promus first, then browse jobs from there"
                       : "Add to Kanban board"
                   }
                 >
@@ -598,6 +608,8 @@ export function JobsTable({ data, loading, kanbanUserId }: Props) {
                         ? "red"
                         : applyStatus[selectedJob._id] === "duplicate"
                         ? "yellow"
+                        : applyStatus[selectedJob._id] === "not-connected"
+                        ? "gray"
                         : "violet"
                     }
                     size="lg"
@@ -610,6 +622,8 @@ export function JobsTable({ data, loading, kanbanUserId }: Props) {
                       <IconX size={18} />
                     ) : applyStatus[selectedJob._id] === "duplicate" ? (
                       <IconAlertTriangle size={18} />
+                    ) : applyStatus[selectedJob._id] === "not-connected" ? (
+                      <IconUserOff size={18} />
                     ) : (
                       <IconSend size={18} />
                     )}
@@ -804,6 +818,8 @@ export function JobsTable({ data, loading, kanbanUserId }: Props) {
                                 ? "Failed to add"
                                 : applyStatus[job._id] === "duplicate"
                                 ? "Already exists in Kanban"
+                                : applyStatus[job._id] === "not-connected"
+                                ? "Sign in to job-promus first, then browse jobs from there"
                                 : "Add to Kanban"
                             }
                           >
@@ -816,6 +832,8 @@ export function JobsTable({ data, loading, kanbanUserId }: Props) {
                                   ? "red"
                                   : applyStatus[job._id] === "duplicate"
                                   ? "yellow"
+                                  : applyStatus[job._id] === "not-connected"
+                                  ? "gray"
                                   : "violet"
                               }
                               loading={applyStatus[job._id] === "loading"}
@@ -827,6 +845,8 @@ export function JobsTable({ data, loading, kanbanUserId }: Props) {
                                 <IconX size={16} />
                               ) : applyStatus[job._id] === "duplicate" ? (
                                 <IconAlertTriangle size={16} />
+                              ) : applyStatus[job._id] === "not-connected" ? (
+                                <IconUserOff size={16} />
                               ) : (
                                 <IconSend size={16} />
                               )}
