@@ -159,17 +159,17 @@ export function Header() {
               </button>
             </Tooltip>
 
-            {/* Jobflow Link */}
-            <Tooltip label="Open Jobflow" position="bottom">
+            {/* Jobpilot Link */}
+            <Tooltip label="Open JobPilot" position="bottom">
               <a
                 href={process.env.NEXT_PUBLIC_KANBAN_URL || "http://localhost:5173"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="kanban-btn"
-                aria-label="Open Jobflow"
+                aria-label="Open JobPilot"
               >
                 <IconLayoutKanban size={18} />
-                <span>Jobflow</span>
+                <span>JobPilot</span>
               </a>
             </Tooltip>
 
