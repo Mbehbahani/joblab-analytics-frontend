@@ -595,7 +595,7 @@ export function JobsTable({ data, loading, kanbanUserId }: Props) {
                       : applyStatus[selectedJob._id] === "duplicate"
                       ? "Already exists in Kanban"
                       : applyStatus[selectedJob._id] === "not-connected"
-                      ? "Sign in to job-promus first, then browse jobs from there"
+                      ? "Sign in to job-pilot first, then browse jobs from there"
                       : "Add to Kanban board"
                   }
                 >
@@ -819,7 +819,7 @@ export function JobsTable({ data, loading, kanbanUserId }: Props) {
                                 : applyStatus[job._id] === "duplicate"
                                 ? "Already exists in Kanban"
                                 : applyStatus[job._id] === "not-connected"
-                                ? "Sign in to job-promus first, then browse jobs from there"
+                                ? "Sign in to job-pilot first, then browse jobs from there"
                                 : "Add to Kanban"
                             }
                           >
