@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * POST /api/apply — Proxy request to job-promus Convex HTTP endpoint
+ * POST /api/apply — Proxy request to JobPilot Convex HTTP endpoint
  * to add a job to the Kanban board's "Targeted" column.
  */
 export async function POST(req: NextRequest) {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     return NextResponse.json(
       {
-        error: "Failed to connect to job-promus",
+        error: "Failed to connect to JobPilot",
         message:
           err instanceof Error ? err.message : "Network error",
       },

@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 const STORAGE_KEY = "kanban_user_id";
 
 /**
- * Reads `kanbanUser` from URL query params (set by job-promus "Browse Jobs" link)
+ * Reads `kanbanUser` from URL query params (set by JobPilot "Browse Jobs" link)
  * and persists it in sessionStorage for the duration of the browser session.
  * Returns the userId (or null if not set).
  */
