@@ -67,12 +67,6 @@ function normalizeDateInput(value?: string | null): string | null {
   return null;
 }
 
-function addDaysToDateString(dateString: string, days: number): string {
-  const date = new Date(`${dateString}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().split("T")[0];
-}
-
 function getDateOnly(value?: string | null): string | null {
   if (!value) return null;
   return value.split("T")[0];
@@ -119,7 +113,7 @@ function applyFilters(jobs: any[], filters: DashboardFilters, skip?: keyof Dashb
       const endDate = normalizeDateInput(end);
       const jobDate = getDateOnly(job.posted_date);
       if (startDate && jobDate && jobDate < startDate) return false;
-      if (endDate && jobDate && jobDate > addDaysToDateString(endDate, 1)) return false;
+      if (endDate && jobDate && jobDate > endDate) return false;
     }
     // --- comma-separated multi-value filters ---
     if (skip !== "education_level" && filters.education_level?.length) {

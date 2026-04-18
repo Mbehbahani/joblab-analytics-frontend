@@ -20,6 +20,24 @@ import { useFilterStore } from "@/store/filterStore";
 import { FilterOptions } from "@/types/dashboard";
 import { useState, useEffect, useRef } from "react";
 
+function shiftDateString(dateString: string, days: number): string {
+  const [year, month, day] = dateString.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().split("T")[0];
+}
+
+function getInclusiveDayDiff(start: string, end: string): number | null {
+  if (!start || !end) return null;
+  const [startYear, startMonth, startDay] = start.split("-").map(Number);
+  const [endYear, endMonth, endDay] = end.split("-").map(Number);
+  if ([startYear, startMonth, startDay, endYear, endMonth, endDay].some(Number.isNaN)) return null;
+
+  const startUtc = Date.UTC(startYear, startMonth - 1, startDay);
+  const endUtc = Date.UTC(endYear, endMonth - 1, endDay);
+  return Math.round((endUtc - startUtc) / (1000 * 60 * 60 * 24)) + 1;
+}
+
 type Props = {
   filterOptions: FilterOptions | undefined;
   loading?: boolean;
@@ -49,23 +67,14 @@ export function FilterBar({ filterOptions, loading }: Props) {
 
     if (!filters.posted_date_range) {
       // First load: apply 30-day default
-      const maxDate = new Date(max);
-      const startDate = new Date(maxDate);
-      startDate.setDate(maxDate.getDate() - 29);
-      setDateRange([startDate.toISOString().split("T")[0], maxDate.toISOString().split("T")[0]]);
+      setDateRange([shiftDateString(max, -29), max]);
     } else {
       // Max date changed while user already has a range set.
       // Only auto-update if they are on a preset (1 / 2 / 7 / 30 days), not a custom range.
       const [rawStart, rawEnd] = filters.posted_date_range;
-      const diffDays =
-        Math.round(
-          (new Date(rawEnd).getTime() - new Date(rawStart).getTime()) / (1000 * 60 * 60 * 24)
-        ) + 1;
-      if ([1, 2, 7, 30].includes(diffDays)) {
-        const maxDate = new Date(max);
-        const startDate = new Date(maxDate);
-        startDate.setDate(maxDate.getDate() - (diffDays - 1));
-        setDateRange([startDate.toISOString().split("T")[0], maxDate.toISOString().split("T")[0]]);
+      const diffDays = getInclusiveDayDiff(rawStart, rawEnd);
+      if (diffDays !== null && [1, 2, 7, 30].includes(diffDays)) {
+        setDateRange([shiftDateString(max, -(diffDays - 1)), max]);
       }
     }
 
@@ -96,20 +105,13 @@ export function FilterBar({ filterOptions, loading }: Props) {
     if (!maxPostedDate) {
       // Fallback to today if no data
       const end = new Date();
-      const start = new Date();
-      start.setDate(end.getDate() - (days - 1));
-      const startStr = start.toISOString().split("T")[0];
       const endStr = end.toISOString().split("T")[0];
+      const startStr = shiftDateString(endStr, -(days - 1));
       setDateRange([startStr, endStr]);
       return;
     }
-    
-    const end = new Date(maxPostedDate);
-    const start = new Date(end);
-    start.setDate(end.getDate() - (days - 1));
-    const startStr = start.toISOString().split("T")[0];
-    const endStr = end.toISOString().split("T")[0];
-    setDateRange([startStr, endStr]);
+
+    setDateRange([shiftDateString(maxPostedDate, -(days - 1)), maxPostedDate]);
   };
 
   const applyRecentOption = (value: string) => {
@@ -128,11 +130,9 @@ export function FilterBar({ filterOptions, loading }: Props) {
     if (!filters.posted_date_range) return "all";
     const [start, end] = filters.posted_date_range;
     if (!start || !end) return "custom";
-    const s = new Date(start);
-    const e = new Date(end);
-    const diffDays = Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    if (diffDays === 2) return "2"; // support "Last 2 days" selection
+    const diffDays = getInclusiveDayDiff(start, end);
     if (diffDays === 1) return "1";
+    if (diffDays === 2) return "2";
     if (diffDays === 7) return "7";
     if (diffDays === 30) return "30";
     return "custom";
@@ -141,8 +141,8 @@ export function FilterBar({ filterOptions, loading }: Props) {
   const getRecentLabel = () => {
     const sel = getRecentSelection();
     if (sel === "all") return "All dates";
-    if (sel === "2") return `Today (${filters.posted_date_range?.[0] ?? "-"} — ${filters.posted_date_range?.[1] ?? "-"})`;
-    if (sel === "1") return `Last day (${filters.posted_date_range?.[0] ?? "-"})`;
+    if (sel === "1") return `Today (${filters.posted_date_range?.[0] ?? "-"})`;
+    if (sel === "2") return `Last 2 days (${filters.posted_date_range?.[0] ?? "-"} — ${filters.posted_date_range?.[1] ?? "-"})`;
     if (sel === "7") return `Last week (${filters.posted_date_range?.[0] ?? "-"} — ${filters.posted_date_range?.[1] ?? "-"})`;
     if (sel === "30") return `Last month (${filters.posted_date_range?.[0] ?? "-"} — ${filters.posted_date_range?.[1] ?? "-"})`;
     const [start, end] = filters.posted_date_range ?? ["-", "-"];
@@ -295,7 +295,7 @@ export function FilterBar({ filterOptions, loading }: Props) {
                   onChange={(v) => applyRecentOption(v)}
                   data={[
                     { label: "All", value: "all" },
-                    { label: "Today", value: "2" },
+                    { label: "Today", value: "1" },
                     { label: "Week", value: "7" },
                     { label: "Month", value: "30" },
                     { label: "Custom", value: "custom" },
