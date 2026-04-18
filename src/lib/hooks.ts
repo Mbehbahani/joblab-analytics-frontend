@@ -17,7 +17,13 @@ async function postFetcher(url: string, filters: DashboardFilters) {
 
 // SWR fetcher for GET requests
 async function getFetcher(url: string) {
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: {
+      "Cache-Control": "no-cache",
+      Pragma: "no-cache",
+    },
+  });
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json();
 }
@@ -76,9 +82,11 @@ export function useFilterOptions() {
     "/api/filter-options",
     getFetcher,
     {
+      revalidateIfStale: true,
+      revalidateOnMount: true,
       revalidateOnFocus: true,   // Re-fetch when user returns to the tab so new-day data is picked up
       revalidateOnReconnect: true,
-      dedupingInterval: 60000,   // Still deduplicate within 60s to avoid hammering the DB
+      dedupingInterval: 5000,
     }
   );
   
