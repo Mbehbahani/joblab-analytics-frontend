@@ -4,11 +4,12 @@ import { createServerClient } from "@/lib/supabase";
 /**
  * GET /api/filter-options
  * Returns distinct filter values from the database.
- * Cached for 60 seconds to reduce DB load.
+ * Must stay dynamic so header/filter dates always follow the latest data.
  */
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = createServerClient();
     
@@ -75,25 +76,30 @@ export async function GET(request: NextRequest) {
     const minDate = dates.length ? dates.reduce((a, b) => (a < b ? a : b)) : null;
     const maxDate = dates.length ? dates.reduce((a, b) => (a > b ? a : b)) : null;
     
-    // Use the latest created_at as lastScrapeAt
-    const createdTimes = allJobs.map(j => j.created_at).filter(Boolean);
-    const lastScrapeAt = createdTimes.length 
-      ? new Date(createdTimes.reduce((a: string, b: string) => a > b ? a : b)).getTime()
-      : null;
+    // Drive the header date from the latest posted job date so it matches the table/filter window.
+    // We store it as a timestamp only because the UI already expects `lastScrapeAt`.
+    const lastScrapeAt = maxDate ? new Date(`${maxDate}T00:00:00`).getTime() : null;
 
-    return NextResponse.json({
-      countries,
-      jobTypes,
-      jobLevels,
-      jobFunctions,
-      industries,
-      educationLevels,
-      skills,
-      searchTerms,
-      platforms,
-      dateRange: { min: minDate, max: maxDate },
-      lastScrapeAt,
-    });
+    return NextResponse.json(
+      {
+        countries,
+        jobTypes,
+        jobLevels,
+        jobFunctions,
+        industries,
+        educationLevels,
+        skills,
+        searchTerms,
+        platforms,
+        dateRange: { min: minDate, max: maxDate },
+        lastScrapeAt,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("Filter options API error:", error);
     return NextResponse.json(

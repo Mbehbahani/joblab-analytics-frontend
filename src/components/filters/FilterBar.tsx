@@ -86,7 +86,7 @@ export function FilterBar({ filterOptions, loading }: Props) {
     if (!timestamp) return "N/A";
     const d = new Date(timestamp);
     if (isNaN(d.getTime())) return "N/A";
-    return d.toLocaleString();
+    return d.toLocaleDateString();
   };
 
   const _formatDate = (value?: string | null) => {
@@ -270,7 +270,7 @@ export function FilterBar({ filterOptions, loading }: Props) {
               <Group gap={6} align="center">
                 <IconCalendar size={14} />
                 <Text size="xs" c="dimmed">
-                  Last scrape: <Text component="span" fw={600}>{formatDateTime(filterOptions?.lastScrapeAt)}</Text>
+                  Latest job date: <Text component="span" fw={600}>{formatDateTime(filterOptions?.lastScrapeAt)}</Text>
                 </Text>
               </Group>
 
