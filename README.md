@@ -1,10 +1,5 @@
 # Job Analytics Frontend
 
-<p align="center">
-  <a href="https://job.oploy.eu/">
-    <img src="public/job-market-front.jpg" alt="Job Agent Backend banner inspired by the public product direction on job.oploy.eu" width="58%" />
-  </a>
-</p>
 
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)
