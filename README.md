@@ -1,4 +1,10 @@
-# JobLab Analytics Frontend
+# Job Analytics Frontend [job.oploy.eu](https://job.oploy.eu)
+
+<p align="center">
+  <a href="https://job.oploy.eu/">
+    <img src="public/job-market-front.jpg" alt="Job Analytics Frontend dashboard preview" width="58%" />
+  </a>
+</p>
 
 Next.js frontend for job analytics, **AI chat**, search workflows, and **CV matching**, with a 14-chart Apache ECharts dashboard over a **Supabase** Postgres data layer.
 
@@ -163,7 +169,6 @@ flowchart TD
 ## Roadmap / TO-DO
 
 - [ ] Add automated component/integration tests
-- [ ] Add a hero screenshot to this README
 - [ ] Wire CI (lint + build) via `.github/workflows/`
 
 ## Related links
