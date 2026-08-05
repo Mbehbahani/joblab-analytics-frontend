@@ -1,0 +1,76 @@
+name: Dependency Inventory
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/dependency-inventory.yml"
+  schedule:
+    - cron: "37 4 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dependency-inventory
+  cancel-in-progress: true
+
+jobs:
+  update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate dependency inventory
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const groups = [
+            ['Runtime dependencies', packageJson.dependencies || {}],
+            ['Development dependencies', packageJson.devDependencies || {}],
+          ];
+          const sections = groups.map(([title, dependencies]) => {
+            const rows = Object.entries(dependencies)
+              .sort(([left], [right]) => left.localeCompare(right))
+              .map(([name, version]) => `| \`${name}\` | \`${version}\` |`);
+            return `## ${title}\n\n| Package | Declared version |\n|---|---|\n${rows.join('\n')}`;
+          });
+          const output = [
+            '# Dependency Inventory',
+            '',
+            "> Automatically maintained by GitHub Actions from `package.json`.",
+            '',
+            sections.join('\n\n'),
+            '',
+          ].join('\n');
+          fs.mkdirSync('docs', { recursive: true });
+          fs.writeFileSync(path.join('docs', 'dependency-inventory.md'), output, 'utf8');
+          NODE
+
+      - name: Commit inventory changes
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain -- docs/dependency-inventory.md)" ]; then
+            echo "Dependency inventory is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/dependency-inventory.md
+          git commit -m "docs: update dependency inventory"
+          git push
