@@ -9,8 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@mantine/core": "^8.3.10",
-    "@mantine/hooks": "^8.3.10",
+    "@mantine/core": "^9.0.0",
+    "@mantine/hooks": "^9.0.0",
     "@supabase/supabase-js": "^2.49.0",
     "@tabler/icons-react": "^3.36.1",
     "@vercel/analytics": "^1.6.1",
