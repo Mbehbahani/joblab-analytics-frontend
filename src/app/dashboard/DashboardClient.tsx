@@ -36,7 +36,6 @@ import { ToolsBarChart } from "@/components/charts/ToolsBarChart";
 import { SearchTermChart } from "@/components/charts/SearchTermChart";
 import { Header } from "@/components/layout/Header";
 import { FirstVisitTour } from "@/components/onboarding/FirstVisitTour";
-import { useAiPanelStore } from "@/store/aiPanelStore";
 import { useKanbanUser } from "@/lib/useKanbanUser";
 
 function toSlug(value: string) {
@@ -141,14 +140,12 @@ export function DashboardClient() {
     tableData,
   } = useDashboardData();
 
-  const aiPanelOpen = useAiPanelStore((s) => s.open);
   const kanbanUserId = useKanbanUser();
 
   return (
     <main
       aria-label="JobLab analytics dashboard"
       className="dashboard-main"
-      data-ai-open={aiPanelOpen || undefined}
     >
       <Container size="xl" py="lg">
         <Stack gap="lg">

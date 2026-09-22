@@ -17,27 +17,19 @@ import {
 import {
   IconSun,
   IconMoon,
-  IconSparkles,
   IconSearch,
-  IconFileText,
   IconInfoCircle,
   IconLayoutKanban,
 } from "@tabler/icons-react";
 import Image from "next/image";
 import { useMounted } from "@mantine/hooks";
-import { AiPanel } from "@/components/ai/AiPanel";
-import { AiInsightPanel } from "@/components/ai/AiInsightPanel";
 import { JobLookupPanel } from "@/components/dashboard/JobLookupPanel";
-import { CVMatcher } from "@/components/ai/CVMatcher";
-import { useAiPanelStore } from "@/store/aiPanelStore";
 
 export function Header() {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("light");
   const mounted = useMounted();
-  const { open: aiOpen, setOpen: setAiOpen } = useAiPanelStore();
   const [lookupOpen, setLookupOpen] = useState(false);
-  const [cvMatchOpen, setCvMatchOpen] = useState(false);
 
   // Use a stable default for SSR to prevent hydration mismatch
   const isDark = mounted ? computedColorScheme === "dark" : false;
@@ -134,31 +126,6 @@ export function Header() {
                 <IconSearch size={20} />
               </ActionIcon>
             </Tooltip>
-            {/* AI CV Match Button */}
-            <Tooltip label="AI CV Match" position="bottom">
-              <button
-                id="cv-match-trigger"
-                onClick={() => setCvMatchOpen(true)}
-                aria-label="Open AI CV Match"
-                className="cv-match-btn"
-              >
-                <IconFileText size={18} />
-                <span>CV Match</span>
-              </button>
-            </Tooltip>
-
-            {/* Agent Button */}
-            <Tooltip label={aiOpen ? "Close Agent" : "AI Agent"} position="bottom">
-              <button
-                onClick={() => setAiOpen(!aiOpen)}
-                aria-label={aiOpen ? "Close AI Agent" : "Open AI Agent"}
-                className={`agent-btn${aiOpen ? " agent-btn--active" : ""}`}
-              >
-                <IconSparkles size={18} />
-                <span>Agent</span>
-              </button>
-            </Tooltip>
-
             {/* Jobpilot Link */}
             <Tooltip label="Open JobPilot" position="bottom">
               <a
@@ -177,17 +144,8 @@ export function Header() {
         </Group>
       </Box>
 
-      {/* AI Panel */}
-      <AiPanel opened={aiOpen} onClose={() => setAiOpen(false)} />
-
       {/* Job Lookup Panel (Drawer) */}
       <JobLookupPanel opened={lookupOpen} onClose={() => setLookupOpen(false)} />
-
-      {/* AI CV Match Panel (Drawer) */}
-      <CVMatcher opened={cvMatchOpen} onClose={() => setCvMatchOpen(false)} />
-
-      {/* AI Insight Chart Panel (Left Drawer) */}
-      <AiInsightPanel />
     </>
   );
 }
