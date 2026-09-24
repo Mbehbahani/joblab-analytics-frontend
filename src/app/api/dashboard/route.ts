@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase";
+import { getAllJobs } from "@/lib/jobsCache";
 import type { DashboardFilters } from "@/types/dashboard";
 
 // Cache dashboard results for 30 seconds to reduce DB load
@@ -18,30 +18,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const filters: DashboardFilters = body.filters || {};
     
-    const supabase = createServerClient();
-    
     // Fetch all jobs — only exclude exact URL duplicates at DB level.
     // All other filtering is done in-memory to enable cross-filtering
     // (each chart sees data filtered by everything EXCEPT its own dimension,
     //  so its own items never disappear when you select one of them).
-    let query = supabase.from("jobs").select("*");
-    if (filters.exclude_duplicates !== false) {
-      query = query.eq("has_url_duplicate", 0);
-    }
-
-    // Fetch up to 10000 rows (Supabase default limit is 1000, we need pagination)
-    const allJobs: any[] = [];
-    let offset = 0;
-    const pageSize = 1000;
-    
-    while (true) {
-      const { data, error } = await query.range(offset, offset + pageSize - 1);
-      if (error) throw error;
-      if (!data || data.length === 0) break;
-      allJobs.push(...data);
-      if (data.length < pageSize) break;
-      offset += pageSize;
-    }
+    // Rows are cached in process memory, so filter changes don't re-pull the table.
+    const allJobs = await getAllJobs(filters.exclude_duplicates !== false);
 
     // Compute all aggregations with cross-filtering support
     const result = computeAllAggregations(allJobs, filters);

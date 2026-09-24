@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase";
+import { getAllJobs } from "@/lib/jobsCache";
 
 /**
  * GET /api/filter-options
@@ -11,26 +11,8 @@ export const revalidate = 0;
 
 export async function GET(_request: NextRequest) {
   try {
-    const supabase = createServerClient();
-    
-    // Fetch all non-duplicate jobs for filter options
-    const allJobs: any[] = [];
-    let offset = 0;
-    const pageSize = 1000;
-    
-    while (true) {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("country, job_type_filled, job_level_std, job_function_std, company_industry_std, education_level, skills, search_term, platform, posted_date, created_at")
-        .eq("has_url_duplicate", 0)
-        .range(offset, offset + pageSize - 1);
-      
-      if (error) throw error;
-      if (!data || data.length === 0) break;
-      allJobs.push(...data);
-      if (data.length < pageSize) break;
-      offset += pageSize;
-    }
+    // Non-duplicate jobs, shared with the dashboard route's in-memory cache
+    const allJobs = await getAllJobs(true);
 
     const countries = [...new Set(allJobs.map(j => j.country))].sort();
     const jobTypes = [...new Set(allJobs.map(j => j.job_type_filled))].sort();
