@@ -6,7 +6,7 @@
   </a>
 </p>
 
-Next.js frontend for job analytics, **AI chat**, search workflows, and **CV matching**, with a 14-chart Apache ECharts dashboard over a **Supabase** Postgres data layer.
+Next.js job-market dashboard with interactive charts, structured search and API-connected AI chat and CV matching
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
@@ -14,8 +14,6 @@ Next.js frontend for job analytics, **AI chat**, search workflows, and **CV matc
 ![Apache ECharts](https://img.shields.io/badge/Apache%20ECharts-Data%20Viz-AA344D?logo=apacheecharts&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-Data%20Layer-3ECF8E?logo=supabase&logoColor=white)
 ![Zustand](https://img.shields.io/badge/Zustand-State-433E38?logoColor=white)
-
-> ⭐ If this project is useful for your work or research, consider starring it.
 
 ## Overview
 
