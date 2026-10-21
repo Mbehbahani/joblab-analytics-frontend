@@ -41,6 +41,6 @@
     "postcss-simple-vars": "^7.0.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^7.0.0"
   }
 }
